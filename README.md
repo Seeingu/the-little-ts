@@ -12,7 +12,7 @@ TypeScript Node starter demo
 
 3. Synchronize history
 
-`git pull starter starter/node --allow_unrelated`
+`git pull starter master --allow_unrelated`
 
 4. Install dependencies
 
