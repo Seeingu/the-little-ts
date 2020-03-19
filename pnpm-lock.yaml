@@ -1,5 +1,8 @@
+dependencies:
+  lodash: 4.17.15
 devDependencies:
   '@types/jest': 25.1.4
+  '@types/lodash': 4.14.149
   '@types/node': 13.9.1
   '@typescript-eslint/eslint-plugin': 2.23.0_2510d86781fe783b47b58303c18a0d9b
   '@typescript-eslint/parser': 2.23.0_eslint@6.8.0+typescript@3.8.3
@@ -432,6 +435,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-8+KAKzEvSUdeo+kmqnKrqgeE+LcA0tjYWFY7RPProVYwnqDjukzO+3b6dLD56rYX5TdWejnEOLJYOIeh4CXKuA==
+  /@types/lodash/4.14.149:
+    dev: true
+    resolution:
+      integrity: sha512-ijGqzZt/b7BfzcK9vTrS6MFljQRPn5BFWOx8oE0GYxribu6uV+aA9zZuXI1zc/etK9E8nrgdoF2+LgUw7+9tJQ==
   /@types/node/13.9.1:
     dev: true
     resolution:
@@ -3100,7 +3107,6 @@ packages:
     resolution:
       integrity: sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
   /lodash/4.17.15:
-    dev: true
     resolution:
       integrity: sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
   /log-symbols/1.0.2:
@@ -5060,6 +5066,7 @@ packages:
       integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
 specifiers:
   '@types/jest': ^25.1.4
+  '@types/lodash': ^4.14.149
   '@types/node': ^13.9.1
   '@typescript-eslint/eslint-plugin': ^2.·23.0
   '@typescript-eslint/parser': ^2.23.0
@@ -5069,6 +5076,7 @@ specifiers:
   husky: ^4.2.3
   jest: ^25.1.0
   lint-staged: ^10.0.8
+  lodash: ^4.17.15
   ts-jest: ^25.2.1
   ts-node: ^8.6.2
   ts-node-dev: ^1.0.0-pre.44
