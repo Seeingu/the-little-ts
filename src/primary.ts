@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { SchemeConstants } from './consts';
+import { car, cdr } from './util';
 
 export enum PrimaryType {
   Atom,
@@ -27,4 +28,14 @@ export const isSExpression = (...values: unknown[]): boolean => {
 export const isNull = (value: unknown): boolean | SchemeConstants => {
   if (isAtom(value)) return SchemeConstants.Nil;
   return _.isEmpty(value);
+};
+
+export const isLat = (list: unknown): boolean => {
+  if (isNull(list)) {
+    return true;
+  } else if (isAtom(car(list))) {
+    return isLat(cdr(list));
+  } else {
+    return false;
+  }
 };

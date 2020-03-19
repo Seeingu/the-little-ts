@@ -1,4 +1,4 @@
-import { isAtom, isNull, isList, isSExpression } from '../primary';
+import { isAtom, isNull, isList, isSExpression, isLat } from '../primary';
 import { SchemeConstants } from '../consts';
 
 const lists = [[], ['abc', 123], []];
@@ -39,5 +39,21 @@ describe('null', () => {
     });
     expect(isNull([])).toBeTruthy();
     expect(isNull([[]])).toBeFalsy();
+  });
+});
+
+describe('lat', () => {
+  test('is lat', () => {
+    const truthyLists = [[], ['a', 'b', 1]];
+    truthyLists.forEach(list => {
+      expect(isLat(list)).toBeTruthy();
+    });
+    const falsyLists = [
+      [['a'], 'b', 'c'],
+      ['a', ['b'], 'c']
+    ];
+    falsyLists.forEach(list => {
+      expect(isLat(list)).toBeFalsy();
+    });
   });
 });

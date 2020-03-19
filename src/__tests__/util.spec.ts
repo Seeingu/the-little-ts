@@ -1,4 +1,4 @@
-import { car, isEq, cdr, cons } from '../util';
+import { car, isEq, cdr, cons, or, isMember } from '../util';
 import { SchemeConstants } from '../consts';
 
 const nonLists = ['a', 123];
@@ -88,6 +88,46 @@ describe('eq', () => {
     });
     falsyPairs.forEach(pair => {
       expect(isEq(pair.v1, pair.v2)).toBeFalsy();
+    });
+  });
+});
+
+describe('or', () => {
+  test('should works', () => {
+    expect(or(true, false)).toBeTruthy();
+    expect(or(false, true)).toBeTruthy();
+    expect(or(false, false)).toBeFalsy();
+  });
+});
+
+describe('member', () => {
+  test('should works', () => {
+    const truthyPairs = [
+      {
+        atom: 'a',
+        list: ['a', 'b']
+      },
+      {
+        atom: 'a',
+        list: ['b', 'a', 'c']
+      }
+    ];
+    truthyPairs.forEach(pair => {
+      expect(isMember(pair.atom, pair.list)).toBeTruthy();
+    });
+    const falsyPairs = [
+      {
+        atom: 'b',
+        list: ['a', ['c', 'b'], 'd']
+      },
+      { atom: 'a', list: ['b', 'c', 'd'] },
+      {
+        atom: 'a',
+        list: ['b', 'c', ['d', 'e']]
+      }
+    ];
+    falsyPairs.forEach(pair => {
+      expect(isMember(pair.atom, pair.list)).toBeFalsy();
     });
   });
 });
