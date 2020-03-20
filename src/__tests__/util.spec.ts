@@ -17,8 +17,7 @@ import {
   subst2
 } from '../util';
 import { SchemeConstants } from '../consts';
-
-const nonLists = ['a', 123];
+import { SList } from '../types';
 
 describe('car', () => {
   test('should works with list', () => {
@@ -28,13 +27,8 @@ describe('car', () => {
       expect(car(list)).toEqual(expected[index]);
     });
   });
-  test('should works with non list', () => {
-    nonLists.forEach(param => {
-      expect(car(param)).toEqual(SchemeConstants.Nil);
-    });
-  });
   test('should works with nested car', () => {
-    expect(car(car([[[123, 345]]]))).toEqual([123, 345]);
+    expect(car(car([[[123, 345]]]) as SList)).toEqual([123, 345]);
   });
 });
 
@@ -44,11 +38,6 @@ describe('cdr', () => {
     const expected = [SchemeConstants.Nil, [12], [[34]]];
     lists.forEach((list, index) => {
       expect(cdr(list)).toEqual(expected[index]);
-    });
-  });
-  test('should works with non list', () => {
-    nonLists.forEach(nonList => {
-      expect(cdr(nonList)).toEqual(SchemeConstants.Nil);
     });
   });
 });
@@ -65,11 +54,6 @@ describe('cons', () => {
         atom: ['a'],
         list: ['b', 'c'],
         expected: [['a'], 'b', 'c']
-      },
-      {
-        atom: 'a',
-        list: 'b',
-        expected: SchemeConstants.Nil
       }
     ];
     pairs.forEach(pair => {

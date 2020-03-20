@@ -3,7 +3,7 @@ import { SchemeConstants } from '../consts';
 
 const lists = [[], ['abc', 123], []];
 const nestedLists = [[[]], [[], 1, 2]];
-const atoms = ['string', 123, 12.3, 'a'];
+const atoms = ['string', 123, 12.3, -12.3, 'a'];
 
 describe('atom', () => {
   test('is atom', () => {
