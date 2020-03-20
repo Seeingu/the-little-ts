@@ -3,7 +3,6 @@ import {
   isEq,
   cdr,
   cons,
-  or,
   isMember,
   rember,
   multirember,
@@ -14,15 +13,22 @@ import {
   multiinsertL,
   subst,
   multisubst,
-  subst2
+  subst2,
+  length,
+  pick,
+  rempick,
+  noNums,
+  allNums,
+  eqan,
+  occur
 } from '../util';
 import { SchemeConstants } from '../consts';
 import { SList } from '../types';
 
 describe('car', () => {
   test('should works with list', () => {
-    const lists = [[], [123, 12], [[123], 34]];
-    const expected = [SchemeConstants.Nil, 123, [123]];
+    const lists = [[], [0], [123, 12], [[123], 34]];
+    const expected = [SchemeConstants.Nil, 0, 123, [123]];
     lists.forEach((list, index) => {
       expect(car(list)).toEqual(expected[index]);
     });
@@ -63,7 +69,7 @@ describe('cons', () => {
 });
 
 describe('eq', () => {
-  test('should works', () => {
+  test('isEq should works', () => {
     const truthyPairs = [
       {
         v1: 'a1',
@@ -91,13 +97,23 @@ describe('eq', () => {
       expect(isEq(pair.v1, pair.v2)).toBeFalsy();
     });
   });
-});
-
-describe('or', () => {
-  test('should works', () => {
-    expect(or(true, false)).toBeTruthy();
-    expect(or(false, true)).toBeTruthy();
-    expect(or(false, false)).toBeFalsy();
+  test('eqan should works', () => {
+    const truthyPairs = [
+      [0, 0],
+      [1, 1],
+      [11, 11],
+      ['a', 'a']
+    ];
+    const falsyPairs = [
+      [1, '1'],
+      ['a', 'ab']
+    ];
+    truthyPairs.forEach(pair => {
+      expect(eqan(pair[0], pair[1])).toBeTruthy();
+    });
+    falsyPairs.forEach(pair => {
+      expect(eqan(pair[0], pair[1])).toBeFalsy();
+    });
   });
 });
 
@@ -506,5 +522,34 @@ describe('subst', () => {
         pair.expected
       );
     });
+  });
+});
+
+describe('lat', () => {
+  test('length should works', () => {
+    expect(length([])).toEqual(0);
+    expect(length(['a', 'b', 'c'])).toEqual(3);
+  });
+  test('pick should works', () => {
+    expect(pick(0, ['a'])).toEqual(SchemeConstants.Nil);
+    expect(pick(1, ['a', 'b'])).toEqual('a');
+    expect(pick(3, ['a', 'b'])).toEqual(SchemeConstants.Nil);
+  });
+  test('rempick should works', () => {
+    expect(rempick(1, ['a', 'b', 'c'])).toEqual(['b', 'c']);
+    expect(rempick(1, [])).toEqual(SchemeConstants.Nil);
+  });
+  test('noNums should works', () => {
+    expect(noNums([])).toEqual([]);
+    expect(noNums(['a', 1, 2.5, 'b', 'c'])).toEqual(['a', 'b', 'c']);
+  });
+  test('allNums should works', () => {
+    expect(allNums([])).toEqual([]);
+    expect(allNums(['a', 1, 2.5, 'b', 'c'])).toEqual([1, 2.5]);
+  });
+  test('occur should works', () => {
+    expect(occur(1, [1, 2, 3, 1, 'a'])).toEqual(2);
+    expect(occur(0, [0, 1, 2, 0, 0])).toEqual(3);
+    expect(occur(1, [])).toEqual(0);
   });
 });
