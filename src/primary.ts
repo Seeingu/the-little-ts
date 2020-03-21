@@ -26,11 +26,9 @@ export const isSExpression = (...values: unknown[]): boolean => {
   return isAtom(values) || isList(values);
 };
 
-export const isNull = (
-  value: SList | SAtom | SchemeConstants
-): boolean | SchemeConstants => {
-  if (isAtom(value)) return SchemeConstants.Nil;
-  if (value === SchemeConstants.Nil) return value;
+export const isNull = (value: SList | SAtom | SchemeConstants): boolean => {
+  if (isAtom(value)) return false;
+  if (value === SchemeConstants.Nil) return true;
   return _.isEmpty(value);
 };
 

@@ -1,9 +1,17 @@
 import _ from 'lodash';
 import { SchemeConstants } from './consts';
-import { isNull } from './primary';
-import { SList, SAtom, SLat, STup } from './types';
+import { isNull, isAtom } from './primary';
+import { SList, SAtom, SLat, STup, SSExp } from './types';
 import { ArrayItem } from './types/typeFn';
-import { add1, isZero, sub1, isNumber, opEq, isOne } from './utils/number';
+import {
+  add1,
+  isZero,
+  sub1,
+  isNumber,
+  opEq,
+  isOne,
+  opAdd
+} from './utils/number';
 
 /** @unit */
 export const car = <T extends SList>(
@@ -35,8 +43,51 @@ export const or = (v1: boolean, v2: boolean): boolean => {
   return v1 || v2;
 };
 /** @unit */
-export const and = (v1: boolean, v2: boolean): boolean => {
-  return v1 && v2;
+export const and = (
+  v1: boolean | SchemeConstants,
+  v2: boolean | SchemeConstants
+): boolean => {
+  if (v1 === SchemeConstants.Nil) {
+    return v2 === SchemeConstants.Nil;
+  }
+  return (v1 as boolean) && (v2 as boolean);
+};
+
+export const isEqan = (atom1: SAtom, atom2: SAtom): boolean => {
+  if (and(isNumber(atom1), isNumber(atom2))) {
+    return opEq(atom1 as number, atom2 as number);
+  }
+  return isEq(atom1, atom2);
+};
+
+export const isEqlist = (list1: SList, list2: SList): boolean => {
+  if (isNull(list1)) {
+    if (isNull(list2)) return true;
+    return false;
+  }
+  if (isNull(list2)) {
+    return false;
+  }
+  // TODO: js cross reference issue: can simplify by calling isEqual
+  if (and(isAtom(car(list1)), isAtom(car(list2)))) {
+    if (isEqan(car(list1), car(list2))) {
+      return isEqlist(cdr(list1) as SList, cdr(list2) as SList);
+    }
+  } else if (or(isAtom(car(list1)), isAtom(car(list2)))) {
+    return false;
+  }
+  return and(
+    isEqlist(car(list1), car(list2)),
+    isEqlist(cdr(list1) as SList, cdr(list2) as SList)
+  );
+};
+
+export const isEqual = (s1: SSExp, s2: SSExp): boolean => {
+  if (and(isAtom(s1), isAtom(s2))) return isEqan(s1 as SAtom, s2 as SAtom);
+  if (or(isAtom(s1), isAtom(s2))) {
+    return false;
+  }
+  return isEqlist(s1 as SList, s2 as SList);
 };
 
 export const isMember = (atom: SAtom, list: SList): boolean => {
@@ -48,12 +99,12 @@ export const isMember = (atom: SAtom, list: SList): boolean => {
   }
 };
 
-export const rember = (atom: SAtom, lat: SLat): SLat | SchemeConstants => {
+export const rember = (s: SSExp, lat: SLat): SLat | SchemeConstants => {
   if (isNull(lat)) return lat;
-  if (isEq(car(lat), atom)) {
+  if (isEqual(car(lat), s)) {
     return cdr(lat);
   }
-  return cons(car(lat), rember(atom, cdr(lat) as SLat) as SLat);
+  return cons(car(lat), rember(s, cdr(lat) as SLat) as SLat);
 };
 
 export const multirember = (atom: SAtom, lat: SLat): SLat => {
@@ -176,17 +227,119 @@ export const allNums = (lat: SLat): STup => {
   return allNums(cdr(lat) as SLat);
 };
 
-export const eqan = (atom1: SAtom, atom2: SAtom): boolean => {
-  if (and(isNumber(atom1), isNumber(atom2))) {
-    return opEq(atom1 as number, atom2 as number);
-  }
-  return isEq(atom1, atom2);
-};
-
 export const occur = (atom: SAtom, lat: SLat): number => {
   if (isNull(lat)) return 0;
-  if (eqan(atom, car(lat))) {
+  if (isEqan(atom, car(lat))) {
     return add1(occur(atom, cdr(lat) as SLat));
   }
   return occur(atom, cdr(lat) as SLat);
+};
+
+export const leftmost = (list: SList): SAtom | SchemeConstants => {
+  if (isNull(list)) return SchemeConstants.Nil;
+  if (isAtom(car(list))) {
+    return car(list);
+  }
+  return leftmost(car(list));
+};
+
+export const remberStar = (atom: SAtom, list: SList): SList => {
+  if (isNull(list)) return [];
+  if (isAtom(car(list))) {
+    if (isEqan(atom, car(list))) {
+      return remberStar(atom, cdr(list) as SList);
+    } else {
+      return cons(car(list), remberStar(atom, cdr(list) as SList));
+    }
+  }
+  return cons(
+    remberStar(atom, car(list)),
+    remberStar(atom, cdr(list) as SList)
+  );
+};
+
+export const insertRStar = (
+  newAtom: SAtom,
+  oldAtom: SAtom,
+  list: SList
+): SList => {
+  if (isNull(list)) return [];
+  if (isAtom(car(list))) {
+    if (isEqan(oldAtom, car(list))) {
+      return cons(
+        car(list),
+        cons(newAtom, insertRStar(newAtom, oldAtom, cdr(list) as SList))
+      );
+    } else {
+      return cons(car(list), insertRStar(newAtom, oldAtom, cdr(list) as SList));
+    }
+  }
+  return cons(
+    insertRStar(newAtom, oldAtom, car(list)),
+    insertRStar(newAtom, oldAtom, cdr(list) as SList)
+  );
+};
+
+export const insertLStar = (
+  newAtom: SAtom,
+  oldAtom: SAtom,
+  list: SList
+): SList => {
+  if (isNull(list)) return [];
+  if (isAtom(car(list))) {
+    if (isEqan(oldAtom, car(list))) {
+      return cons(
+        newAtom,
+        cons(car(list), insertLStar(newAtom, oldAtom, cdr(list) as SList))
+      );
+    } else {
+      return cons(car(list), insertLStar(newAtom, oldAtom, cdr(list) as SList));
+    }
+  }
+  return cons(
+    insertLStar(newAtom, oldAtom, car(list)),
+    insertLStar(newAtom, oldAtom, cdr(list) as SList)
+  );
+};
+
+export const occurStar = (atom: SAtom, list: SList): number => {
+  if (isNull(list)) return 0;
+  if (isAtom(car(list))) {
+    if (isEqan(atom, car(list))) {
+      return add1(occurStar(atom, cdr(list) as SList));
+    } else {
+      return occurStar(atom, cdr(list) as SList);
+    }
+  }
+  return opAdd(occurStar(atom, car(list)), occurStar(atom, cdr(list) as SList));
+};
+
+export const substStar = (
+  newAtom: SAtom,
+  oldAtom: SAtom,
+  list: SList
+): SList => {
+  if (isNull(list)) return [];
+  if (isAtom(car(list))) {
+    if (isEqan(oldAtom, car(list))) {
+      return cons(newAtom, substStar(newAtom, oldAtom, cdr(list) as SList));
+    } else {
+      return cons(car(list), substStar(newAtom, oldAtom, cdr(list) as SList));
+    }
+  }
+  return cons(
+    substStar(newAtom, oldAtom, car(list)),
+    substStar(newAtom, oldAtom, cdr(list) as SList)
+  );
+};
+
+export const isMemberStar = (atom: SAtom, list: SList): boolean => {
+  if (isNull(list)) return false;
+  if (isAtom(car(list))) {
+    return or(isEqan(atom, car(list)), isMemberStar(atom, cdr(list) as SList));
+  }
+  return or(
+    isMemberStar(atom, car(list)),
+    isMemberStar(atom, cdr(list) as SList)
+  );
 };

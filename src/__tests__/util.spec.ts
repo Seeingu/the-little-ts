@@ -6,20 +6,29 @@ import {
   isMember,
   rember,
   multirember,
+  remberStar,
   firsts,
   insertR,
+  leftmost,
   multiinsertR,
+  insertRStar,
   insertL,
   multiinsertL,
+  isEqlist,
+  isMemberStar,
   subst,
   multisubst,
   subst2,
   length,
   pick,
+  occurStar,
+  insertLStar,
   rempick,
   noNums,
   allNums,
-  eqan,
+  substStar,
+  isEqan,
+  isEqual,
   occur
 } from '../util';
 import { SchemeConstants } from '../consts';
@@ -109,10 +118,40 @@ describe('eq', () => {
       ['a', 'ab']
     ];
     truthyPairs.forEach(pair => {
-      expect(eqan(pair[0], pair[1])).toBeTruthy();
+      expect(isEqan(pair[0], pair[1])).toBeTruthy();
     });
     falsyPairs.forEach(pair => {
-      expect(eqan(pair[0], pair[1])).toBeFalsy();
+      expect(isEqan(pair[0], pair[1])).toBeFalsy();
+    });
+  });
+  test('eqlist', () => {
+    const truthyPairs = [
+      { list1: [], list2: [] },
+      { list1: [1, 2, 3], list2: [1, 2, 3] },
+      { list1: [[1], [2], [3, 4]], list2: [[1], [2], [3, 4]] },
+      { list1: [[[1]], [2], [3, 4]], list2: [[[1]], [2], [3, 4]] }
+    ];
+    const falsyPairs = [
+      { list1: [1], list2: [] },
+      { list1: [[1, 2, 3]], list2: [[1, 2]] },
+      { list1: [[1], [2, 3], [3, 4]], list2: [[1], [2], [3, 4]] },
+      { list1: [[[]], [2], [3, 4]], list2: [[[1]], [2], [3, 4]] }
+    ];
+    truthyPairs.forEach(pair => {
+      expect(isEqlist(pair.list1, pair.list2)).toBeTruthy();
+    });
+    falsyPairs.forEach(pair => {
+      expect(isEqlist(pair.list1, pair.list2)).toBeFalsy();
+    });
+  });
+  test('equal?', () => {
+    const truthyPairs = [
+      { s1: [], s2: [] },
+      { s1: 1, s2: 1 },
+      { s1: [1, 2, [[3]]], s2: [1, 2, [[3]]] }
+    ];
+    truthyPairs.forEach(pair => {
+      expect(isEqual(pair.s1, pair.s2)).toBeTruthy();
     });
   });
 });
@@ -133,6 +172,7 @@ describe('member', () => {
       expect(isMember(pair.atom, pair.list)).toBeTruthy();
     });
     const falsyPairs = [
+      { atom: 'b', list: [] },
       {
         atom: 'b',
         list: ['a', ['c', 'b'], 'd']
@@ -147,39 +187,67 @@ describe('member', () => {
       expect(isMember(pair.atom, pair.list)).toBeFalsy();
     });
   });
+
+  test('member* should works', () => {
+    const truthyPairs = [
+      {
+        atom: 1,
+        list: [1, 2, 3]
+      },
+      {
+        atom: 1,
+        list: [[1, 2, 3], [123]]
+      },
+      {
+        atom: 1,
+        list: [
+          [2, 3, 4],
+          [[2, 3, 1], [2]]
+        ]
+      }
+    ];
+    truthyPairs.forEach(pair => {
+      expect(isMemberStar(pair.atom, pair.list)).toBeTruthy();
+    });
+  });
 });
 
 describe('rember', () => {
   test('rember should works', () => {
     const pairs = [
       {
-        atom: 'a',
+        s: 'a',
         lat: [],
         expected: []
       },
       {
-        atom: 'a',
+        s: 'a',
         lat: ['a', 'b', 'c'],
         expected: ['b', 'c']
       },
       {
-        atom: 'a',
+        s: 'a',
         lat: ['b', 'c', 'd'],
         expected: ['b', 'c', 'd']
       },
       {
-        atom: 'a',
+        s: 'a',
         lat: [['a'], 'b', 'c'],
         expected: [['a'], 'b', 'c']
       },
       {
-        atom: 'a',
+        s: 'a',
         lat: ['a', 'b', 'a'],
         expected: ['b', 'a']
+      },
+      {
+        s: ['a'],
+        lat: ['a', 'b', ['a']],
+        expected: ['a', 'b']
       }
     ];
     pairs.forEach(pair => {
-      expect(rember(pair.atom, pair.lat)).toEqual(pair.expected);
+      expect(rember(pair.s, pair.lat)).toEqual(pair.expected);
     });
   });
 
@@ -213,6 +281,34 @@ describe('rember', () => {
     ];
     pairs.forEach(pair => {
       expect(multirember(pair.atom, pair.lat)).toEqual(pair.expected);
+    });
+  });
+
+  test('rember* should works', () => {
+    const pairs = [
+      {
+        atom: 'a',
+        list: [],
+        expected: []
+      },
+      {
+        atom: 'a',
+        list: ['a', 'b', 'c'],
+        expected: ['b', 'c']
+      },
+      {
+        atom: 'a',
+        list: [['a', 'b'], ['b', 'c', 'a'], ['c']],
+        expected: [['b'], ['b', 'c'], ['c']]
+      },
+      {
+        atom: 'a',
+        list: [[['a', 'b']], [['b', 'c', 'a']], ['c']],
+        expected: [[['b']], [['b', 'c']], ['c']]
+      }
+    ];
+    pairs.forEach(pair => {
+      expect(remberStar(pair.atom, pair.list)).toEqual(pair.expected);
     });
   });
 });
@@ -313,6 +409,44 @@ describe('insertR', () => {
       );
     });
   });
+
+  test('insertR* should works', () => {
+    const pairs = [
+      {
+        newAtom: 'a',
+        oldAtom: 'b',
+        list: [],
+        expected: []
+      },
+      {
+        newAtom: 'a',
+        oldAtom: 'b',
+        list: ['b', 'c', 'b'],
+        expected: ['b', 'a', 'c', 'b', 'a']
+      },
+      {
+        newAtom: 'a',
+        oldAtom: 'b',
+        list: [['b'], ['a', 'b'], ['c', 'd']],
+        expected: [
+          ['b', 'a'],
+          ['a', 'b', 'a'],
+          ['c', 'd']
+        ]
+      },
+      {
+        newAtom: 'a',
+        oldAtom: 'b',
+        list: [[['b']], ['a', 'b'], ['c', 'd']],
+        expected: [[['b', 'a']], ['a', 'b', 'a'], ['c', 'd']]
+      }
+    ];
+    pairs.forEach(pair => {
+      expect(insertRStar(pair.newAtom, pair.oldAtom, pair.list)).toEqual(
+        pair.expected
+      );
+    });
+  });
 });
 
 describe('insertL', () => {
@@ -384,6 +518,34 @@ describe('insertL', () => {
     ];
     pairs.forEach(pair => {
       expect(multiinsertL(pair.newAtom, pair.oldAtom, pair.lat)).toEqual(
+        pair.expected
+      );
+    });
+  });
+
+  test('insertL* should works', () => {
+    const pairs = [
+      {
+        newAtom: 'a',
+        oldAtom: 'b',
+        list: [],
+        expected: []
+      },
+      {
+        newAtom: 'a',
+        oldAtom: 'b',
+        list: ['b', 'c', 'b'],
+        expected: ['a', 'b', 'c', 'a', 'b']
+      },
+      {
+        newAtom: 'a',
+        oldAtom: 'b',
+        list: [['b'], ['a', 'b'], ['c', 'd'], [['b', 'c']]],
+        expected: [['a', 'b'], ['a', 'a', 'b'], ['c', 'd'], [['a', 'b', 'c']]]
+      }
+    ];
+    pairs.forEach(pair => {
+      expect(insertLStar(pair.newAtom, pair.oldAtom, pair.list)).toEqual(
         pair.expected
       );
     });
@@ -523,6 +685,41 @@ describe('subst', () => {
       );
     });
   });
+  test('subst* should works', () => {
+    const pairs = [
+      {
+        newAtom: 'a',
+        oldAtom: 'b',
+        list: [],
+        expected: []
+      },
+      {
+        newAtom: 1,
+        oldAtom: 2,
+        list: [1, 2, 3, 2, 4, 2],
+        expected: [1, 1, 3, 1, 4, 1]
+      },
+      {
+        newAtom: 1,
+        oldAtom: 2,
+        list: [
+          [2, 2, 2],
+          [1, 2, 3],
+          [2, [1, 2]]
+        ],
+        expected: [
+          [1, 1, 1],
+          [1, 1, 3],
+          [1, [1, 1]]
+        ]
+      }
+    ];
+    pairs.forEach(pair => {
+      expect(substStar(pair.newAtom, pair.oldAtom, pair.list)).toEqual(
+        pair.expected
+      );
+    });
+  });
 });
 
 describe('lat', () => {
@@ -547,9 +744,53 @@ describe('lat', () => {
     expect(allNums([])).toEqual([]);
     expect(allNums(['a', 1, 2.5, 'b', 'c'])).toEqual([1, 2.5]);
   });
+});
+
+describe('occur', () => {
   test('occur should works', () => {
-    expect(occur(1, [1, 2, 3, 1, 'a'])).toEqual(2);
-    expect(occur(0, [0, 1, 2, 0, 0])).toEqual(3);
-    expect(occur(1, [])).toEqual(0);
+    const pairs = [
+      { atom: 1, lat: [1, 2, 3, 1, 'a'], expected: 2 },
+      { atom: 0, lat: [0, 1, 2, 0, 0], expected: 3 },
+      { atom: 1, lat: [], expected: 0 }
+    ];
+    pairs.forEach(pair => {
+      expect(occur(pair.atom, pair.lat)).toEqual(pair.expected);
+    });
+  });
+  test('occur* should works', () => {
+    const pairs = [
+      { atom: 1, list: [], expected: 0 },
+      { atom: 1, list: [1, 2, 3, 4, 1, 2, 1], expected: 3 },
+      { atom: 1, list: [[1, 2, [1]], [1, 2], 3, [4]], expected: 3 }
+    ];
+    pairs.forEach(pair => {
+      expect(occurStar(pair.atom, pair.list)).toEqual(pair.expected);
+    });
+  });
+});
+
+describe('leftmost', () => {
+  test('leftmost', () => {
+    const pairs = [
+      {
+        list: [],
+        expected: SchemeConstants.Nil
+      },
+      {
+        list: [[[[]]], 1, 2, 3],
+        expected: SchemeConstants.Nil
+      },
+      {
+        list: [[1], [12], 23],
+        expected: 1
+      },
+      {
+        list: [[[[1]]], 14, 23],
+        expected: 1
+      }
+    ];
+    pairs.forEach(pair => {
+      expect(leftmost(pair.list)).toEqual(pair.expected);
+    });
   });
 });

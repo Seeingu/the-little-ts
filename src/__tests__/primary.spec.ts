@@ -1,5 +1,4 @@
 import { isAtom, isNull, isList, isSExpression, isLat } from '../primary';
-import { SchemeConstants } from '../consts';
 
 const lists = [[], ['abc', 123], []];
 const nestedLists = [[[]], [[], 1, 2]];
@@ -35,7 +34,7 @@ describe('s-expression', () => {
 describe('null', () => {
   test('is null', () => {
     atoms.forEach(atom => {
-      expect(isNull(atom)).toEqual(SchemeConstants.Nil);
+      expect(isNull(atom)).toBeFalsy();
     });
     expect(isNull([])).toBeTruthy();
     expect(isNull([[]])).toBeFalsy();
