@@ -166,6 +166,10 @@ describe('member', () => {
       {
         atom: 'a',
         list: ['b', 'a', 'c']
+      },
+      {
+        atom: 1,
+        list: [2, 1]
       }
     ];
     truthyPairs.forEach(pair => {
@@ -277,6 +281,11 @@ describe('rember', () => {
         atom: 'a',
         lat: ['a', 'b', 'a', 'c', 'a'],
         expected: ['b', 'c']
+      },
+      {
+        atom: 1,
+        lat: [1, 2, 1, 3, 1],
+        expected: [2, 3]
       }
     ];
     pairs.forEach(pair => {

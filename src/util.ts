@@ -22,6 +22,7 @@ export const car = <T extends SList>(
 
 /** @unit */
 export const cdr = <T extends SList>(lists: T): SchemeConstants | SList => {
+  if (!_.isArray(lists)) return SchemeConstants.Nil;
   if (lists.length === 0) return SchemeConstants.Nil;
   return lists.slice(1);
 };
@@ -92,7 +93,7 @@ export const isEqual = (s1: SSExp, s2: SSExp): boolean => {
 
 export const isMember = (atom: SAtom, list: SList): boolean => {
   if (isNull(list)) return false;
-  else if (isEq(atom, car(list))) {
+  else if (isEqual(atom, car(list))) {
     return true;
   } else {
     return isMember(atom, cdr(list) as SList);
@@ -109,7 +110,7 @@ export const rember = (s: SSExp, lat: SLat): SLat | SchemeConstants => {
 
 export const multirember = (atom: SAtom, lat: SLat): SLat => {
   if (isNull(lat)) return lat;
-  if (isEq(car(lat), atom)) {
+  if (isEqual(car(lat), atom)) {
     return multirember(atom, cdr(lat) as SLat);
   }
   return cons(car(lat), multirember(atom, cdr(lat) as SLat));
