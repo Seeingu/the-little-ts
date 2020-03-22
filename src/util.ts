@@ -1,95 +1,11 @@
 import _ from 'lodash';
 import { SchemeConstants } from './consts';
 import { isNull, isAtom } from './primary';
-import { SList, SAtom, SLat, STup, SSExp } from './types';
-import { ArrayItem } from './types/typeFn';
-import {
-  add1,
-  isZero,
-  sub1,
-  isNumber,
-  opEq,
-  isOne,
-  opAdd
-} from './utils/number';
-
-/** @unit */
-export const car = <T extends SList>(
-  lists: T
-): SchemeConstants | ArrayItem<T> => {
-  return _.isNil(lists[0]) ? SchemeConstants.Nil : lists[0];
-};
-
-/** @unit */
-export const cdr = <T extends SList>(lists: T): SchemeConstants | SList => {
-  if (!_.isArray(lists)) return SchemeConstants.Nil;
-  if (lists.length === 0) return SchemeConstants.Nil;
-  return lists.slice(1);
-};
-
-/** @unit */
-export const cons = (atom: SAtom | SList, lists: SList): SList => {
-  return [atom, ...lists];
-};
-
-/** @unit */
-export const isEq = (v1: SAtom | SList, v2: SAtom | SList): boolean => {
-  if (_.isNumber(v1) || _.isNumber(v2)) return false;
-  if (_.isArray(v1) || _.isArray(v2)) return false;
-  return _.isEqual(v1, v2);
-};
-
-/** @unit */
-export const or = (v1: boolean, v2: boolean): boolean => {
-  return v1 || v2;
-};
-/** @unit */
-export const and = (
-  v1: boolean | SchemeConstants,
-  v2: boolean | SchemeConstants
-): boolean => {
-  if (v1 === SchemeConstants.Nil) {
-    return v2 === SchemeConstants.Nil;
-  }
-  return (v1 as boolean) && (v2 as boolean);
-};
-
-export const isEqan = (atom1: SAtom, atom2: SAtom): boolean => {
-  if (and(isNumber(atom1), isNumber(atom2))) {
-    return opEq(atom1 as number, atom2 as number);
-  }
-  return isEq(atom1, atom2);
-};
-
-export const isEqlist = (list1: SList, list2: SList): boolean => {
-  if (isNull(list1)) {
-    if (isNull(list2)) return true;
-    return false;
-  }
-  if (isNull(list2)) {
-    return false;
-  }
-  // TODO: js cross reference issue: can simplify by calling isEqual
-  if (and(isAtom(car(list1)), isAtom(car(list2)))) {
-    if (isEqan(car(list1), car(list2))) {
-      return isEqlist(cdr(list1) as SList, cdr(list2) as SList);
-    }
-  } else if (or(isAtom(car(list1)), isAtom(car(list2)))) {
-    return false;
-  }
-  return and(
-    isEqlist(car(list1), car(list2)),
-    isEqlist(cdr(list1) as SList, cdr(list2) as SList)
-  );
-};
-
-export const isEqual = (s1: SSExp, s2: SSExp): boolean => {
-  if (and(isAtom(s1), isAtom(s2))) return isEqan(s1 as SAtom, s2 as SAtom);
-  if (or(isAtom(s1), isAtom(s2))) {
-    return false;
-  }
-  return isEqlist(s1 as SList, s2 as SList);
-};
+import { SList, SAtom, SLat, STup } from './types';
+import { add1, isZero, sub1, isNumber, isOne, opAdd } from './utils/number';
+import { insertG, remberF, multiremberF } from './utils/fun';
+import { isEq, car, cdr, or, cons } from './unit';
+import { isEqan, isEqual } from './utils/eq';
 
 export const isMember = (atom: SAtom, list: SList): boolean => {
   if (isNull(list)) return false;
@@ -100,34 +16,18 @@ export const isMember = (atom: SAtom, list: SList): boolean => {
   }
 };
 
-export const rember = (s: SSExp, lat: SLat): SLat | SchemeConstants => {
-  if (isNull(lat)) return lat;
-  if (isEqual(car(lat), s)) {
-    return cdr(lat);
-  }
-  return cons(car(lat), rember(s, cdr(lat) as SLat) as SLat);
-};
+export const rember = remberF(isEqual);
 
-export const multirember = (atom: SAtom, lat: SLat): SLat => {
-  if (isNull(lat)) return lat;
-  if (isEqual(car(lat), atom)) {
-    return multirember(atom, cdr(lat) as SLat);
-  }
-  return cons(car(lat), multirember(atom, cdr(lat) as SLat));
-};
+export const multirember = multiremberF(isEqual);
 
 export const firsts = (list: SList): SList => {
   if (isNull(list)) return list;
   return cons(car(car(list) as SList), firsts(cdr(list) as SList));
 };
 
-export const insertR = (newAtom: SAtom, oldAtom: SAtom, lat: SLat): SLat => {
-  if (isNull(lat)) return lat;
-  if (isEq(oldAtom, car(lat))) {
-    return cons(car(lat), cons(newAtom, cdr(lat) as SLat));
-  }
-  return cons(car(lat), insertR(newAtom, oldAtom, cdr(lat) as SLat));
-};
+export const insertR = insertG((newS, oldS, list) =>
+  cons(oldS, cons(newS, list))
+);
 
 export const multiinsertR = (
   newAtom: SAtom,
@@ -144,13 +44,9 @@ export const multiinsertR = (
   return cons(car(lat), multiinsertR(newAtom, oldAtom, cdr(lat) as SLat));
 };
 
-export const insertL = (newAtom: SAtom, oldAtom: SAtom, lat: SLat): SLat => {
-  if (isNull(lat)) return lat;
-  if (isEq(oldAtom, car(lat))) {
-    return cons(newAtom, lat);
-  }
-  return cons(car(lat), insertL(newAtom, oldAtom, cdr(lat) as SLat));
-};
+export const insertL = insertG((newS, oldS, list) =>
+  cons(newS, cons(oldS, list))
+);
 
 export const multiinsertL = (
   newAtom: SAtom,
@@ -167,13 +63,7 @@ export const multiinsertL = (
   return cons(car(lat), multiinsertL(newAtom, oldAtom, cdr(lat) as SLat));
 };
 
-export const subst = (newAtom: SAtom, oldAtom: SAtom, lat: SLat): SLat => {
-  if (isNull(lat)) return lat;
-  if (isEq(oldAtom, car(lat))) {
-    return cons(newAtom, cdr(lat) as SLat);
-  }
-  return cons(car(lat), subst(newAtom, oldAtom, cdr(lat) as SLat));
-};
+export const subst = insertG((newS, _oldS, list) => cons(newS, list));
 
 export const subst2 = (
   newAtom: SAtom,

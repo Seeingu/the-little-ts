@@ -1,7 +1,8 @@
 import { SList, SSExp, SPair } from '../types';
 import { isAtom, isNull } from '../primary';
-import { cdr, car, cons, firsts } from '../util';
+import { firsts } from '../util';
 import { isSet } from './set';
+import { cdr, car, cons } from '../unit';
 
 // TODO: Guard
 

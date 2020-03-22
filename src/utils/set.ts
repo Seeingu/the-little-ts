@@ -1,6 +1,7 @@
 import { SLat, SSet } from '../types';
 import { isNull } from '../primary';
-import { isMember, car, cdr, cons, multirember, and, or } from '../util';
+import { isMember, multirember } from '../util';
+import { cdr, car, cons, and, or } from '../unit';
 
 export const isSet = (lat: SLat): boolean => {
   if (isNull(lat)) return true;

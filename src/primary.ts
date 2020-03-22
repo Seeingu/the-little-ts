@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { SchemeConstants } from './consts';
-import { car, cdr } from './util';
+import { car, cdr } from './unit';
 import { SList, SAtom } from './types';
 
 export enum PrimaryType {

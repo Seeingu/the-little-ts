@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { isNull } from '../primary';
-import { cdr, car, cons, or } from '../util';
+import { cdr, car, cons, or } from '../unit';
 import { STup } from '../types';
 
 /** @unit */

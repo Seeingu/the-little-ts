@@ -1,8 +1,4 @@
 import {
-  car,
-  isEq,
-  cdr,
-  cons,
   isMember,
   rember,
   multirember,
@@ -14,7 +10,6 @@ import {
   insertRStar,
   insertL,
   multiinsertL,
-  isEqlist,
   isMemberStar,
   subst,
   multisubst,
@@ -27,134 +22,9 @@ import {
   noNums,
   allNums,
   substStar,
-  isEqan,
-  isEqual,
   occur
 } from '../util';
 import { SchemeConstants } from '../consts';
-import { SList } from '../types';
-
-describe('car', () => {
-  test('should works with list', () => {
-    const lists = [[], [0], [123, 12], [[123], 34]];
-    const expected = [SchemeConstants.Nil, 0, 123, [123]];
-    lists.forEach((list, index) => {
-      expect(car(list)).toEqual(expected[index]);
-    });
-  });
-  test('should works with nested car', () => {
-    expect(car(car([[[123, 345]]]) as SList)).toEqual([123, 345]);
-  });
-});
-
-describe('cdr', () => {
-  test('should works with list', () => {
-    const lists = [[], [123, 12], [[123], [34]]];
-    const expected = [SchemeConstants.Nil, [12], [[34]]];
-    lists.forEach((list, index) => {
-      expect(cdr(list)).toEqual(expected[index]);
-    });
-  });
-});
-
-describe('cons', () => {
-  test('should works', () => {
-    const pairs = [
-      {
-        atom: 'a',
-        list: [],
-        expected: ['a']
-      },
-      {
-        atom: ['a'],
-        list: ['b', 'c'],
-        expected: [['a'], 'b', 'c']
-      }
-    ];
-    pairs.forEach(pair => {
-      expect(cons(pair.atom, pair.list)).toEqual(pair.expected);
-    });
-  });
-});
-
-describe('eq', () => {
-  test('isEq should works', () => {
-    const truthyPairs = [
-      {
-        v1: 'a1',
-        v2: 'a1'
-      }
-    ];
-    const falsyPairs = [
-      {
-        v1: 'a1',
-        v2: 'a2'
-      },
-      {
-        v1: 123,
-        v2: 123
-      },
-      {
-        v1: [1],
-        v2: [1]
-      }
-    ];
-    truthyPairs.forEach(pair => {
-      expect(isEq(pair.v1, pair.v2)).toBeTruthy();
-    });
-    falsyPairs.forEach(pair => {
-      expect(isEq(pair.v1, pair.v2)).toBeFalsy();
-    });
-  });
-  test('eqan should works', () => {
-    const truthyPairs = [
-      [0, 0],
-      [1, 1],
-      [11, 11],
-      ['a', 'a']
-    ];
-    const falsyPairs = [
-      [1, '1'],
-      ['a', 'ab']
-    ];
-    truthyPairs.forEach(pair => {
-      expect(isEqan(pair[0], pair[1])).toBeTruthy();
-    });
-    falsyPairs.forEach(pair => {
-      expect(isEqan(pair[0], pair[1])).toBeFalsy();
-    });
-  });
-  test('eqlist', () => {
-    const truthyPairs = [
-      { list1: [], list2: [] },
-      { list1: [1, 2, 3], list2: [1, 2, 3] },
-      { list1: [[1], [2], [3, 4]], list2: [[1], [2], [3, 4]] },
-      { list1: [[[1]], [2], [3, 4]], list2: [[[1]], [2], [3, 4]] }
-    ];
-    const falsyPairs = [
-      { list1: [1], list2: [] },
-      { list1: [[1, 2, 3]], list2: [[1, 2]] },
-      { list1: [[1], [2, 3], [3, 4]], list2: [[1], [2], [3, 4]] },
-      { list1: [[[]], [2], [3, 4]], list2: [[[1]], [2], [3, 4]] }
-    ];
-    truthyPairs.forEach(pair => {
-      expect(isEqlist(pair.list1, pair.list2)).toBeTruthy();
-    });
-    falsyPairs.forEach(pair => {
-      expect(isEqlist(pair.list1, pair.list2)).toBeFalsy();
-    });
-  });
-  test('equal?', () => {
-    const truthyPairs = [
-      { s1: [], s2: [] },
-      { s1: 1, s2: 1 },
-      { s1: [1, 2, [[3]]], s2: [1, 2, [[3]]] }
-    ];
-    truthyPairs.forEach(pair => {
-      expect(isEqual(pair.s1, pair.s2)).toBeTruthy();
-    });
-  });
-});
 
 describe('member', () => {
   test('should works', () => {
