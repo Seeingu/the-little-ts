@@ -145,7 +145,7 @@ export const opDiv = (num1: number, num2: number): number => {
   return add1(opDiv(opSub(num1, num2), num2));
 };
 
-export const isNumber = (num: any): boolean => {
+export const isNumber = (num: any): num is number => {
   return _.isNumber(num);
 };
 
