@@ -40,7 +40,7 @@
     "*.ts": "eslint --cache --fix"
   },
   "dependencies": {
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.21"
   },
   "repository": "git@github.com:Seeingu/the-little-ts.git"
 }
