@@ -1863,8 +1863,8 @@ packages:
   performance-now@2.1.0:
     resolution: {integrity: sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=}
 
-  picomatch@2.2.1:
-    resolution: {integrity: sha512-ISBaA8xQNmwELC7eOjqFKMESB2VIqt4PPDD0nsS95b/9dZXvVKOlz9keMSnoGGKcOHXfTvDD6WMaRoSc9UuhRA==}
+  picomatch@2.3.2:
+    resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
     engines: {node: '>=8.6'}
 
   pify@2.3.0:
@@ -3103,7 +3103,7 @@ snapshots:
   anymatch@3.1.1:
     dependencies:
       normalize-path: 3.0.0
-      picomatch: 2.2.1
+      picomatch: 2.3.2
 
   arg@4.1.3: {}
 
@@ -4626,7 +4626,7 @@ snapshots:
   micromatch@4.0.2:
     dependencies:
       braces: 3.0.2
-      picomatch: 2.2.1
+      picomatch: 2.3.2
 
   mime-db@1.43.0: {}
 
@@ -4847,7 +4847,7 @@ snapshots:
 
   performance-now@2.1.0: {}
 
-  picomatch@2.2.1: {}
+  picomatch@2.3.2: {}
 
   pify@2.3.0: {}
 
